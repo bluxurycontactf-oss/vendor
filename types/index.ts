@@ -24,6 +24,15 @@ export interface Shop {
   whatsapp?: string;
   plan: 'free' | 'premium' | 'business';
   isActive: boolean;
+  paymentMethods?: {
+    mtn?: string;
+    moov?: string;
+    wave?: string;
+    orange?: string;
+    bankName?: string;
+    bankAccount?: string;
+    instructions?: string;
+  };
   createdAt?: string;
   updatedAt?: string;
 }

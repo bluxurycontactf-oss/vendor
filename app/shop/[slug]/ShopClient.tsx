@@ -21,7 +21,9 @@ export default function ShopClient() {
   const [checkoutName, setCheckoutName] = useState('');
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutAddress, setCheckoutAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [ordering, setOrdering] = useState(false);
+  const [orderDone, setOrderDone] = useState(false);
 
   useEffect(() => {
     const parts = window.location.pathname.split('/');
@@ -65,13 +67,9 @@ export default function ShopClient() {
     setOrdering(true);
     try {
       const items: OrderItem[] = cart.map(i => ({ productId: i.product.id!, productName: i.product.name, price: i.product.price, quantity: i.qty }));
-      await createOrder({ shopId: shop.id!, customerName: checkoutName, customerPhone: checkoutPhone, customerAddress: checkoutAddress, items, total: cartTotal, status: 'pending', paymentMethod: 'mobile_money', notes: '' });
-      toast.success('Commande passée !');
+      await createOrder({ shopId: shop.id!, customerName: checkoutName, customerPhone: checkoutPhone, customerAddress: checkoutAddress, items, total: cartTotal, status: 'pending', paymentMethod: paymentMethod as 'mobile_money', notes: '' });
+      setOrderDone(true);
       setCart([]);
-      setCheckoutName('');
-      setCheckoutPhone('');
-      setCheckoutAddress('');
-      setView('shop');
     } catch { toast.error('Erreur lors de la commande'); }
     finally { setOrdering(false); }
   };
@@ -195,60 +193,124 @@ export default function ShopClient() {
   );
 
   /* ── CHECKOUT VIEW ── */
-  if (view === 'checkout') return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => setView('cart')} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-          <ChevronLeft size={20} className="text-gray-700" />
-        </button>
-        <span className="font-bold text-gray-900 flex-1">Finaliser la commande</span>
-      </div>
+  if (view === 'checkout') {
+    const pm = shop.paymentMethods;
+    const availableMethods = [
+      pm?.mtn && { key: 'mtn', label: 'MTN Mobile Money', number: pm.mtn, color: 'bg-yellow-400', emoji: '🟡' },
+      pm?.moov && { key: 'moov', label: 'Moov Money', number: pm.moov, color: 'bg-blue-500', emoji: '🔵' },
+      pm?.wave && { key: 'wave', label: 'Wave', number: pm.wave, color: 'bg-teal-400', emoji: '🌊' },
+      pm?.orange && { key: 'orange', label: 'Orange Money', number: pm.orange, color: 'bg-orange-400', emoji: '🟠' },
+      pm?.bankName && { key: 'bank', label: pm.bankName, number: pm.bankAccount || '', color: 'bg-gray-500', emoji: '🏦' },
+    ].filter(Boolean) as { key: string; label: string; number: string; color: string; emoji: string }[];
 
-      <div className="flex-1 overflow-y-auto p-4 pb-36 flex flex-col gap-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col gap-4">
-          <h2 className="font-bold text-gray-900">Vos informations</h2>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-600">Nom complet *</label>
-            <input value={checkoutName} onChange={e => setCheckoutName(e.target.value)} placeholder="Prénom et nom"
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0A66FF] outline-none text-sm" />
+    if (orderDone) return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 text-center gap-4">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl">✅</div>
+        <h1 className="text-2xl font-black text-gray-900">Commande confirmée !</h1>
+        <p className="text-gray-500 text-sm max-w-xs">Merci {checkoutName}. Votre commande a bien été enregistrée.</p>
+
+        {paymentMethod && availableMethods.length > 0 && (
+          <div className="bg-white rounded-2xl p-4 shadow-sm w-full max-w-xs text-left">
+            <p className="font-bold text-gray-900 mb-2 text-sm">Comment payer :</p>
+            {(() => {
+              const m = availableMethods.find(m => m.key === paymentMethod);
+              return m ? (
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-semibold">{m.emoji} {m.label}</p>
+                  <p className="text-lg font-black text-[#0A66FF]">{m.number}</p>
+                  <p className="text-xs text-gray-400">Montant : {cartTotal.toLocaleString()} FCFA</p>
+                </div>
+              ) : null;
+            })()}
+            {pm?.instructions && <p className="text-xs text-gray-500 mt-2 border-t pt-2">{pm.instructions}</p>}
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-600">Téléphone *</label>
-            <input value={checkoutPhone} onChange={e => setCheckoutPhone(e.target.value)} type="tel" placeholder="+229 01 XX XX XX"
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0A66FF] outline-none text-sm" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-600">Adresse de livraison</label>
-            <input value={checkoutAddress} onChange={e => setCheckoutAddress(e.target.value)} placeholder="Quartier, ville..."
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0A66FF] outline-none text-sm" />
-          </div>
+        )}
+
+        <button onClick={() => { setView('shop'); setOrderDone(false); setCheckoutName(''); setCheckoutPhone(''); setCheckoutAddress(''); setPaymentMethod(''); }}
+          className="mt-2 px-6 py-3 bg-[#0A66FF] text-white font-bold rounded-2xl text-sm">
+          Retour à la boutique
+        </button>
+      </div>
+    );
+
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setView('cart')} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+            <ChevronLeft size={20} className="text-gray-700" />
+          </button>
+          <span className="font-bold text-gray-900 flex-1">Finaliser la commande</span>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <h2 className="font-bold text-gray-900 mb-3">Récapitulatif</h2>
-          {cart.map(i => (
-            <div key={i.product.id} className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>{i.product.name} x{i.qty}</span>
-              <span className="font-semibold">{(i.product.price * i.qty).toLocaleString()} F</span>
+        <div className="flex-1 overflow-y-auto p-4 pb-36 flex flex-col gap-4">
+          {/* Infos client */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+            <h2 className="font-bold text-gray-900">Vos informations</h2>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-600">Nom complet *</label>
+              <input value={checkoutName} onChange={e => setCheckoutName(e.target.value)} placeholder="Prénom et nom"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0A66FF] outline-none text-sm" />
             </div>
-          ))}
-          <div className="flex justify-between font-black text-gray-900 pt-3 border-t border-gray-100 mt-2">
-            <span>Total</span>
-            <span className="text-[#0A66FF]">{cartTotal.toLocaleString()} FCFA</span>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-600">Téléphone *</label>
+              <input value={checkoutPhone} onChange={e => setCheckoutPhone(e.target.value)} type="tel" placeholder="+229 01 XX XX XX"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0A66FF] outline-none text-sm" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-600">Adresse de livraison</label>
+              <input value={checkoutAddress} onChange={e => setCheckoutAddress(e.target.value)} placeholder="Quartier, ville..."
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0A66FF] outline-none text-sm" />
+            </div>
+          </div>
+
+          {/* Moyens de paiement */}
+          {availableMethods.length > 0 && (
+            <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+              <h2 className="font-bold text-gray-900">Mode de paiement</h2>
+              {availableMethods.map(m => (
+                <button key={m.key} onClick={() => setPaymentMethod(m.key)}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${paymentMethod === m.key ? 'border-[#0A66FF] bg-blue-50' : 'border-gray-200'}`}>
+                  <span className="text-2xl">{m.emoji}</span>
+                  <div className="flex-1">
+                    <p className="font-bold text-gray-900 text-sm">{m.label}</p>
+                    <p className="text-xs text-gray-500">{m.number}</p>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === m.key ? 'border-[#0A66FF]' : 'border-gray-300'}`}>
+                    {paymentMethod === m.key && <div className="w-3 h-3 bg-[#0A66FF] rounded-full" />}
+                  </div>
+                </button>
+              ))}
+              {pm?.instructions && (
+                <p className="text-xs text-gray-500 bg-gray-50 rounded-xl p-3">{pm.instructions}</p>
+              )}
+            </div>
+          )}
+
+          {/* Récapitulatif */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm">
+            <h2 className="font-bold text-gray-900 mb-3">Récapitulatif</h2>
+            {cart.map(i => (
+              <div key={i.product.id} className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>{i.product.name} x{i.qty}</span>
+                <span className="font-semibold">{(i.product.price * i.qty).toLocaleString()} F</span>
+              </div>
+            ))}
+            <div className="flex justify-between font-black text-gray-900 pt-3 border-t border-gray-100 mt-2">
+              <span>Total</span>
+              <span className="text-[#0A66FF]">{cartTotal.toLocaleString()} FCFA</span>
+            </div>
           </div>
         </div>
 
-        <p className="text-xs text-center text-gray-400">Le vendeur vous contactera pour confirmer et organiser le paiement</p>
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4">
+          <button onClick={handleOrder} disabled={ordering || !checkoutName || !checkoutPhone}
+            className="w-full bg-[#0A66FF] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 disabled:opacity-50">
+            {ordering ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Confirmer la commande'}
+          </button>
+        </div>
       </div>
-
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4">
-        <button onClick={handleOrder} disabled={ordering}
-          className="w-full bg-[#0A66FF] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 disabled:opacity-60">
-          {ordering ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Confirmer la commande'}
-        </button>
-      </div>
-    </div>
-  );
+    );
+  }
 
   /* ── MAIN SHOP VIEW ── */
   return (
