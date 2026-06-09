@@ -14,7 +14,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Vendor — Créez votre boutique en ligne en Afrique",
+  title: "Shoply — Créez votre boutique en ligne en Afrique",
   description: "La plateforme e-commerce #1 pour les commerçants africains. Vendez en ligne, acceptez les paiements Mobile Money et développez votre business.",
   keywords: ["boutique en ligne", "e-commerce Afrique", "Mobile Money", "vendre en ligne", "Bénin"],
   manifest: "/manifest.json",

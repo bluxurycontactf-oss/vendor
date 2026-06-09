@@ -52,7 +52,7 @@ export default function RegisterPage() {
           <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-8 backdrop-blur-sm">
             <Zap size={36} className="text-white" />
           </div>
-          <h2 className="text-3xl font-black text-white mb-4">Rejoignez Vendor Africa</h2>
+          <h2 className="text-3xl font-black text-white mb-4">Rejoignez Shoply Africa</h2>
           <p className="text-blue-200 text-lg max-w-sm mb-10">Lancez votre boutique en ligne et commencez à vendre dès aujourd&apos;hui.</p>
           <div className="flex flex-col gap-4">
             {perks.map(p => (
@@ -75,7 +75,7 @@ export default function RegisterPage() {
             <div className="w-8 h-8 bg-gradient-to-br from-[#0A66FF] to-[#3B82F6] rounded-xl flex items-center justify-center">
               <Zap size={16} className="text-white" />
             </div>
-            Vendor
+            Shoply
           </Link>
 
           <h1 className="text-3xl font-black text-[#0D1B3E] dark:text-white mb-2">Créer un compte</h1>
