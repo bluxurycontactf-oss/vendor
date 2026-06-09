@@ -8,6 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: Production
+
     steps:
       - uses: actions/checkout@v4
 
@@ -22,26 +23,26 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          NEXT_PUBLIC_APP_DOMAIN: ${{ secrets.NEXT_PUBLIC_APP_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ vars.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_APP_DOMAIN: ${{ vars.NEXT_PUBLIC_APP_DOMAIN }}
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
       - name: Write service account
-        env:
-          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
           echo "$SA_JSON" > /tmp/sa.json
-          echo "Service account file size: $(wc -c < /tmp/sa.json) bytes"
+          echo "File size: $(wc -c < /tmp/sa.json) bytes"
           cat /tmp/sa.json | python3 -c "import sys,json; d=json.load(sys.stdin); print('SA valid, project:', d.get('project_id','?'))"
+        env:
+          SA_JSON: ${{ vars.FIREBASE_SERVICE_ACCOUNT }}
 
       - name: Deploy to Firebase Hosting
-        run: firebase deploy --only hosting --project vendor-00 --debug
+        run: firebase deploy --only hosting --project vendor-00
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa.json
