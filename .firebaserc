@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "vendor-00"
+  },
+  "targets": {
+    "vendor-00": {
+      "hosting": {
+        "vendor": ["vendor"]
+      }
+    }
+  }
+}
