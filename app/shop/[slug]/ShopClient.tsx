@@ -253,27 +253,19 @@ export default function ShopClient() {
   /* ── MAIN SHOP VIEW ── */
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Banner */}
-      <div className="relative h-36 sm:h-52 bg-gradient-to-r from-[#0D1B3E] to-[#0A66FF] overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-        {shop.banner && <img src={shop.banner} alt="banner" className="absolute inset-0 w-full h-full object-cover opacity-40" />}
-      </div>
-
       {/* Shop header */}
-      <div className="px-4 sm:px-6 max-w-3xl mx-auto">
-        {/* Logo overlapping banner */}
-        <div className="-mt-9 mb-3">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-4 border-white shadow-lg flex items-center justify-center text-3xl font-black text-[#0A66FF] overflow-hidden">
+      <div className="px-4 sm:px-6 max-w-3xl mx-auto pt-5">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-blue-50 border-2 border-gray-100 shadow-sm flex items-center justify-center text-3xl font-black text-[#0A66FF] overflow-hidden flex-shrink-0">
             {shop.logo ? <img src={shop.logo} alt={shop.name} className="w-full h-full object-cover" /> : shop.name.charAt(0).toUpperCase()}
           </div>
-        </div>
-        {/* Name clearly below banner */}
-        <div className="mb-4">
-          <h1 className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">{shop.name}</h1>
-          <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap mt-1">
-            {shop.city && <span className="flex items-center gap-1"><MapPin size={11} />{shop.city}</span>}
-            <span className="flex items-center gap-1"><Star size={11} className="text-yellow-400 fill-yellow-400" />4.8</span>
-            <span>{products.length} produits</span>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">{shop.name}</h1>
+            <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap mt-1">
+              {shop.city && <span className="flex items-center gap-1"><MapPin size={11} />{shop.city}</span>}
+              <span className="flex items-center gap-1"><Star size={11} className="text-yellow-400 fill-yellow-400" />4.8</span>
+              <span>{products.length} produits</span>
+            </div>
           </div>
         </div>
 
