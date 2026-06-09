@@ -1,11 +1,11 @@
-const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN || 'myvendor.web.app';
+const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN || 'myshoply.web.app';
 
 export function getShopUrl(slug: string): string {
-  return `https://${slug}.${APP_DOMAIN}`;
+  return `https://${APP_DOMAIN}/shop/${slug}`;
 }
 
 export function getShopDomain(slug: string): string {
-  return `${slug}.${APP_DOMAIN}`;
+  return `${APP_DOMAIN}/shop/${slug}`;
 }
 
 export { APP_DOMAIN };
