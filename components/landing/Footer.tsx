@@ -66,7 +66,7 @@ export default function Footer() {
               La plateforme e-commerce #1 pour les commerçants africains. Simple, puissant et mobile-first.
             </p>
             <div className="flex flex-col gap-2 text-sm text-blue-200/60">
-              <div className="flex items-center gap-2"><Mail size={14} /><span>support@vendor.africa</span></div>
+              <div className="flex items-center gap-2"><Mail size={14} /><span>support@myshoply.web.app</span></div>
               <div className="flex items-center gap-2"><Phone size={14} /><span>+229 01 XX XX XX</span></div>
               <div className="flex items-center gap-2"><MapPin size={14} /><span>Cotonou, Bénin</span></div>
             </div>
@@ -93,7 +93,7 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-blue-200/50">© 2026 Vendor Africa. Tous droits réservés.</p>
+          <p className="text-sm text-blue-200/50">© 2026 Shoply Africa. Tous droits réservés.</p>
           <div className="flex items-center gap-3">
             {socials.map((s, i) => (
               <a key={i} href={s.href} aria-label={s.label} className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-blue-200/60 hover:text-white transition-all">

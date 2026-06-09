@@ -28,7 +28,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 bg-gradient-to-br from-[#0A66FF] to-[#3B82F6] rounded-xl flex items-center justify-center">
             <Zap size={16} className="text-white" />
           </div>
-          Vendor
+          Shoply
         </Link>
       </div>
 

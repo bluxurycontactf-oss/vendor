@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Sidebar from '@/components/dashboard/Sidebar';
+import MobileNav from '@/components/dashboard/MobileNav';
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -28,10 +29,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
+      {/* Sidebar desktop uniquement */}
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
+      {/* Contenu */}
+      <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
         {children}
       </main>
+      {/* Navigation mobile en bas */}
+      <MobileNav />
     </div>
   );
 }

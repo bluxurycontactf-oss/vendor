@@ -2,7 +2,7 @@ import { Store, ShoppingCart, Smartphone, BarChart3, Truck, QrCode, Globe, Tag, 
 import Card from '@/components/ui/Card';
 
 const features = [
-  { icon: <Store />, title: 'Boutique instantanée', desc: 'Créez votre boutique en 2 minutes avec votre lien unique vendor.com/shop/votre-nom', color: 'blue' },
+  { icon: <Store />, title: 'Boutique instantanée', desc: 'Créez votre boutique en 2 minutes avec votre lien unique myshoply.web.app/shop/votre-nom', color: 'blue' },
   { icon: <ShoppingCart />, title: 'Catalogue produits', desc: 'Ajoutez vos produits avec photos, prix, stock et description en quelques clics', color: 'purple' },
   { icon: <Smartphone />, title: 'Paiement Mobile Money', desc: 'Acceptez MTN MoMo, Moov Money et cartes bancaires directement sur votre boutique', color: 'green' },
   { icon: <BarChart3 />, title: 'Statistiques détaillées', desc: "Suivez vos ventes, revenus, visiteurs et produits les plus populaires en temps réel", color: 'orange' },

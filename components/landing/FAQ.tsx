@@ -5,7 +5,7 @@ import { ChevronDown } from 'lucide-react';
 const faqs = [
   {
     q: 'Comment créer ma boutique en ligne ?',
-    a: "Créez un compte gratuitement, choisissez le nom de votre boutique, ajoutez votre logo et commencez à publier vos produits. Votre boutique est accessible immédiatement sur l'URL vendor.com/shop/votre-nom.",
+    a: "Créez un compte gratuitement, choisissez le nom de votre boutique, ajoutez votre logo et commencez à publier vos produits. Votre boutique est accessible immédiatement sur l'URL myshoply.web.app/shop/votre-nom.",
   },
   {
     q: 'Quels moyens de paiement puis-je accepter ?',
@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: 'Puis-je utiliser mon propre nom de domaine ?',
-    a: "Oui, à partir du plan Premium vous pouvez connecter votre propre domaine (ex: monshop.com) à votre boutique Vendor. La configuration prend moins de 5 minutes.",
+    a: "Oui, à partir du plan Premium vous pouvez connecter votre propre domaine (ex: monshop.com) à votre boutique Shoply. La configuration prend moins de 5 minutes.",
   },
   {
     q: 'Y a-t-il des frais sur les transactions ?',

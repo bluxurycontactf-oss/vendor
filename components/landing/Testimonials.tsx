@@ -58,7 +58,7 @@ export default function Testimonials() {
         <div className="text-center mb-16">
           <span className="inline-block bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 text-xs font-bold px-4 py-1.5 rounded-full mb-4 border border-yellow-200 dark:border-yellow-800">Témoignages</span>
           <h2 className="text-3xl sm:text-4xl font-black text-[#0D1B3E] dark:text-white mb-4">Ils ont transformé leur business</h2>
-          <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">Rejoignez des milliers de commerçants africains qui développent leur activité avec Vendor.</p>
+          <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">Rejoignez des milliers de commerçants africains qui développent leur activité avec Shoply.</p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
