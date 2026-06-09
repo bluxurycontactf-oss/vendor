@@ -1,15 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
 import { getShopBySlug, getPublicProducts, createOrder } from '@/lib/firestore';
 import { Shop, Product, OrderItem } from '@/types';
-import { ShoppingCart, MapPin, Phone, MessageCircle, Zap, Minus, Plus, Search, Package, Star, X, ChevronLeft, ArrowRight } from 'lucide-react';
+import { ShoppingCart, MapPin, Phone, MessageCircle, Zap, Minus, Plus, Search, Package, Star, ChevronLeft, ArrowRight, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface CartItem { product: Product; qty: number; }
 
 export default function ShopClient() {
-  const { slug } = useParams<{ slug: string }>();
+  const [slug, setSlug] = useState('');
   const [shop, setShop] = useState<Shop | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +22,13 @@ export default function ShopClient() {
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutAddress, setCheckoutAddress] = useState('');
   const [ordering, setOrdering] = useState(false);
+
+  useEffect(() => {
+    const parts = window.location.pathname.split('/');
+    const idx = parts.indexOf('shop');
+    const urlSlug = idx !== -1 ? parts[idx + 1] : '';
+    if (urlSlug) setSlug(urlSlug);
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
