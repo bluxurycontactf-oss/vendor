@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "vendor",
+    "site": "vendor",
     "public": "out",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
