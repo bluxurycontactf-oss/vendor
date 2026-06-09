@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "vendor",
+    "site": "myshoply",
     "public": "out",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
