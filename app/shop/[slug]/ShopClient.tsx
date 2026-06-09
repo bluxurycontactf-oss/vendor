@@ -261,17 +261,19 @@ export default function ShopClient() {
 
       {/* Shop header */}
       <div className="px-4 sm:px-6 max-w-3xl mx-auto">
-        <div className="flex items-end gap-3 -mt-8 mb-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-4 border-white shadow-lg flex items-center justify-center text-3xl font-black text-[#0A66FF] flex-shrink-0 overflow-hidden">
+        {/* Logo overlapping banner */}
+        <div className="-mt-9 mb-3">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-4 border-white shadow-lg flex items-center justify-center text-3xl font-black text-[#0A66FF] overflow-hidden">
             {shop.logo ? <img src={shop.logo} alt={shop.name} className="w-full h-full object-cover" /> : shop.name.charAt(0).toUpperCase()}
           </div>
-          <div className="pb-1">
-            <h1 className="text-lg sm:text-2xl font-black text-gray-900 leading-tight">{shop.name}</h1>
-            <div className="flex items-center gap-2 text-xs text-gray-500 flex-wrap mt-0.5">
-              {shop.city && <span className="flex items-center gap-1"><MapPin size={11} />{shop.city}</span>}
-              <span className="flex items-center gap-1"><Star size={11} className="text-yellow-400 fill-yellow-400" />4.8</span>
-              <span>{products.length} produits</span>
-            </div>
+        </div>
+        {/* Name clearly below banner */}
+        <div className="mb-4">
+          <h1 className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">{shop.name}</h1>
+          <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap mt-1">
+            {shop.city && <span className="flex items-center gap-1"><MapPin size={11} />{shop.city}</span>}
+            <span className="flex items-center gap-1"><Star size={11} className="text-yellow-400 fill-yellow-400" />4.8</span>
+            <span>{products.length} produits</span>
           </div>
         </div>
 
