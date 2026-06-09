@@ -9,6 +9,7 @@ import Badge from '@/components/ui/Badge';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import ImageUploader from '@/components/ui/ImageUploader';
 import toast from 'react-hot-toast';
 
 const EMPTY: Omit<Product, 'id' | 'shopId' | 'createdAt' | 'updatedAt'> = {
@@ -153,6 +154,11 @@ export default function ProductsPage() {
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editing ? 'Modifier le produit' : 'Nouveau produit'} size="lg">
         <div className="flex flex-col gap-4">
+          <ImageUploader
+            images={form.images}
+            onChange={imgs => setForm(f => ({ ...f, images: imgs }))}
+            max={5}
+          />
           <Input label="Nom du produit *" placeholder="Ex : Robe en pagne, iPhone 15..." value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
           <div className="grid grid-cols-2 gap-4">
             <Input label="Prix (FCFA) *" type="number" placeholder="0" value={form.price || ''} onChange={e => setForm(f => ({ ...f, price: +e.target.value }))} required />
