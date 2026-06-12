@@ -1,0 +1,173 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Boutiques
+    match /shops/{shopId} {
+      allow read: if true;
+      // Une boutique ne peut être créée qu'au plan Gratuit — l'activation
+      // d'un plan payant passe obligatoirement par le backend (Admin SDK)
+      // après vérification du paiement FedaPay.
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.ownerId
+        && request.resource.data.plan == 'free';
+      // Le propriétaire peut modifier sa boutique, mais pas les champs
+      // liés au plan/parrainage/statut, qui sont gérés uniquement par
+      // l'admin ou le backend (Admin SDK, qui ignore ces règles).
+      allow update: if (request.auth != null
+          && (
+            (request.auth.uid == resource.data.ownerId
+              && !request.resource.data.diff(resource.data).affectedKeys()
+                  .hasAny(['plan', 'premiumUntil', 'referralCount', 'referralCode', 'suspended', 'ownerId']))
+            || request.auth.token.email == 'didilolade@gmail.com'
+          ))
+        // Compteur de livraisons gratuites (plan Business) : un client, même
+        // anonyme, peut incrémenter ce compteur de 1 lors d'une commande,
+        // dans la limite de 5 par mois, sans pouvoir toucher aux autres champs.
+        || (
+          resource.data.plan == 'business'
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['freeDeliveriesUsed', 'freeDeliveriesMonth', 'updatedAt'])
+          && request.resource.data.freeDeliveriesUsed is int
+          && request.resource.data.freeDeliveriesUsed >= 1
+          && request.resource.data.freeDeliveriesUsed <= 5
+          && (
+            (request.resource.data.freeDeliveriesMonth != resource.data.get('freeDeliveriesMonth', '')
+              && request.resource.data.freeDeliveriesUsed == 1)
+            || (request.resource.data.freeDeliveriesMonth == resource.data.get('freeDeliveriesMonth', '')
+              && request.resource.data.freeDeliveriesUsed == resource.data.get('freeDeliveriesUsed', 0) + 1)
+          )
+        );
+      allow delete: if request.auth != null
+        && (request.auth.uid == resource.data.ownerId
+          || request.auth.token.email == 'didilolade@gmail.com');
+    }
+
+    // Produits
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && get(/databases/$(database)/documents/shops/$(request.resource.data.shopId)).data.ownerId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId == request.auth.uid;
+    }
+
+    // Commandes
+    match /orders/{orderId} {
+      // Lecture publique pour créer une commande, mais uniquement le propriétaire de la boutique peut modifier.
+      // Pour le plan Gratuit, une commande "payée" (escrow FedaPay) ne peut être
+      // créée que par le backend (Admin SDK, qui ignore ces règles), après
+      // vérification de la transaction FedaPay — un client ne peut pas fabriquer
+      // une commande déjà marquée payée.
+      allow create: if true
+        && (
+          get(/databases/$(database)/documents/shops/$(request.resource.data.shopId)).data.plan != 'free'
+          || (
+            request.resource.data.get('paymentStatus', 'pending') != 'paid'
+            && request.resource.data.get('paymentReceived', false) == false
+            && !request.resource.data.keys().hasAny(['fedapayTransactionId', 'vendorPayoutAmount', 'vendorPayoutPaid', 'deliveryStatus'])
+          )
+        );
+      allow read: if request.auth != null
+        && (get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId == request.auth.uid
+          || request.auth.uid == resource.data.get('affiliateUid', null)
+          || request.auth.token.email == 'didilolade@gmail.com'
+          || request.auth.token.email == resource.data.get('deliveryAgentId', null));
+      allow update, delete: if request.auth != null
+        && (
+          get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId == request.auth.uid
+          || request.auth.token.email == 'didilolade@gmail.com'
+          || (
+            get(/databases/$(database)/documents/deliveryAgents/$(request.auth.token.email)).data.active == true
+            && request.auth.token.email == resource.data.get('deliveryAgentId', '')
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deliveryStatus', 'status', 'updatedAt'])
+          )
+        );
+    }
+
+    // Clients
+    match /customers/{customerId} {
+      allow read, write: if request.auth != null
+        && get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId == request.auth.uid;
+    }
+
+    // Coupons
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null
+        && get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId == request.auth.uid;
+    }
+
+    // Subscriptions (abonnements push boutique)
+    match /subscriptions/{subId} {
+      allow read: if true;
+      allow create, delete: if true;
+    }
+
+    // Parrainages
+    match /referrals/{referralId} {
+      // Le traitement des parrainages se fait côté backend (Admin SDK,
+      // qui ignore ces règles) afin de garantir l'intégrité de la règle
+      // "5 parrainages = 1 mois Premium".
+      allow create, update, delete: if false;
+      // Seul l'admin peut lire tous les parrainages
+      allow read: if request.auth != null
+        && (request.auth.uid == resource.data.referredUid
+          || request.auth.token.email == 'didilolade@gmail.com');
+    }
+
+    // Paiements (créés uniquement par le backend après vérification FedaPay)
+    match /payments/{paymentId} {
+      allow read: if request.auth != null
+        && (get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId == request.auth.uid
+          || request.auth.token.email == 'didilolade@gmail.com');
+      allow write: if false;
+    }
+
+    // Signalements (anti-fraude)
+    match /reports/{reportId} {
+      // N'importe qui peut signaler une boutique
+      allow create: if true;
+      // Seul l'admin peut lire et modifier les signalements
+      allow read, update, delete: if request.auth != null
+        && request.auth.token.email == 'didilolade@gmail.com';
+    }
+
+    // Livreurs Shoply (réseau de livraison, plan Gratuit)
+    match /deliveryAgents/{agentEmail} {
+      // Un livreur peut consulter sa propre fiche, l'admin gère tout
+      allow read: if request.auth != null
+        && (request.auth.token.email == agentEmail
+          || request.auth.token.email == 'didilolade@gmail.com');
+      // Un livreur peut créer son propre compte (en attente d'activation par l'admin)
+      allow create: if request.auth != null
+        && (request.auth.token.email == 'didilolade@gmail.com'
+          || (request.auth.token.email == agentEmail
+            && request.resource.data.email == agentEmail
+            && request.resource.data.active == false
+            && request.resource.data.keys().hasOnly(['id', 'email', 'name', 'phone', 'city', 'active', 'createdAt'])));
+      allow delete: if request.auth != null
+        && request.auth.token.email == 'didilolade@gmail.com';
+      // Un livreur peut mettre à jour uniquement son token de notification (FCM)
+      allow update: if request.auth != null
+        && (request.auth.token.email == 'didilolade@gmail.com'
+          || (request.auth.token.email == agentEmail
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcmToken', 'updatedAt'])));
+    }
+
+    // Litiges affiliation (commission non versée par le vendeur)
+    match /affiliateDisputes/{disputeId} {
+      // Seul l'affilié concerné peut créer un signalement, sur sa propre commission
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.affiliateUid;
+      // L'affilié peut suivre ses propres signalements, l'admin voit tout
+      allow read: if request.auth != null
+        && (request.auth.uid == resource.data.affiliateUid
+          || request.auth.token.email == 'didilolade@gmail.com');
+      // Seul l'admin peut traiter (marquer comme traité) un signalement
+      allow update: if request.auth != null
+        && request.auth.token.email == 'didilolade@gmail.com';
+      allow delete: if false;
+    }
+  }
+}

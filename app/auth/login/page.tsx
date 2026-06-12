@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Zap, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/translations';
 import toast from 'react-hot-toast';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -12,41 +14,41 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { login, shop } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const { login } = useAuth();
+  const { lang, t } = useLanguage();
   const router = useRouter();
+
+  const A = translations[lang].auth;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
     try {
       await login(email, password);
-      toast.success('Connexion réussie !');
-      router.push(shop ? '/dashboard' : '/onboarding');
+      // onAuthStateChanged will load shops and set ready=true
+      // dashboard layout will redirect to /onboarding if no shop, or show dashboard if shop exists
+      router.push('/dashboard');
     } catch {
-      toast.error('Email ou mot de passe incorrect');
+      toast.error(lang === 'en' ? 'Incorrect email or password' : lang === 'pt' ? 'Email ou senha incorretos' : 'Email ou mot de passe incorrect');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen flex">
-      {/* Left panel - decorative */}
+      {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0D1B3E] to-[#0A66FF] flex-col items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         <div className="relative z-10 text-center">
           <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-8 backdrop-blur-sm">
             <Zap size={36} className="text-white" />
           </div>
-          <h2 className="text-3xl font-black text-white mb-4">Bon retour sur Shoply</h2>
-          <p className="text-blue-200 text-lg max-w-sm">Accédez à votre tableau de bord et gérez vos ventes en toute simplicité.</p>
+          <h2 className="text-3xl font-black text-white mb-4">{A.login_left_title}</h2>
+          <p className="text-blue-200 text-lg max-w-sm">{A.login_left_subtitle}</p>
           <div className="mt-12 flex flex-col gap-4">
-            {[
-              { label: 'Boutiques actives', value: '10 000+' },
-              { label: 'Commandes / jour', value: '5 000+' },
-              { label: 'Satisfaction', value: '4.9 / 5' },
-            ].map(s => (
+            {A.stats.map(s => (
               <div key={s.label} className="flex items-center gap-4 bg-white/10 rounded-2xl px-5 py-3 backdrop-blur-sm">
                 <div className="text-white font-black text-xl">{s.value}</div>
                 <div className="text-blue-200 text-sm">{s.label}</div>
@@ -56,7 +58,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right panel - form */}
+      {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-6 bg-white dark:bg-gray-950">
         <div className="w-full max-w-md">
           <Link href="/" className="flex items-center gap-2 font-black text-xl text-[#0A66FF] mb-10 lg:hidden">
@@ -66,22 +68,22 @@ export default function LoginPage() {
             Shoply
           </Link>
 
-          <h1 className="text-3xl font-black text-[#0D1B3E] dark:text-white mb-2">Connexion</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-8">Connectez-vous à votre espace vendeur.</p>
+          <h1 className="text-3xl font-black text-[#0D1B3E] dark:text-white mb-2">{t('auth.login_title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">{t('auth.login_subtitle')}</p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <Input
-              label="Adresse email"
+              label={t('auth.email_label')}
               type="email"
-              placeholder="vous@exemple.com"
+              placeholder={t('auth.email_placeholder')}
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
             />
             <Input
-              label="Mot de passe"
+              label={t('auth.password_label')}
               type={showPwd ? 'text' : 'password'}
-              placeholder="Votre mot de passe"
+              placeholder={t('auth.password_placeholder')}
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
@@ -92,16 +94,16 @@ export default function LoginPage() {
               }
             />
             <div className="flex justify-end">
-              <Link href="/auth/forgot-password" className="text-sm text-[#0A66FF] hover:underline">Mot de passe oublié ?</Link>
+              <Link href="/auth/forgot-password" className="text-sm text-[#0A66FF] hover:underline">{t('auth.login_forgot')}</Link>
             </div>
-            <Button type="submit" loading={loading} iconRight={<ArrowRight size={18} />} fullWidth>
-              Se connecter
+            <Button type="submit" loading={submitting} iconRight={<ArrowRight size={18} />} fullWidth>
+              {t('auth.login_btn')}
             </Button>
           </form>
 
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
-            Pas encore de compte ?{' '}
-            <Link href="/auth/register" className="text-[#0A66FF] font-semibold hover:underline">Créer un compte</Link>
+            {t('auth.login_no_account')}{' '}
+            <Link href="/auth/register" className="text-[#0A66FF] font-semibold hover:underline">{t('auth.login_register_link')}</Link>
           </p>
         </div>
       </div>

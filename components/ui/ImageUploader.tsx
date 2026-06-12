@@ -8,9 +8,10 @@ interface Props {
   images: string[];
   onChange: (images: string[]) => void;
   max?: number;
+  label?: string;
 }
 
-export default function ImageUploader({ images, onChange, max = 5 }: Props) {
+export default function ImageUploader({ images, onChange, max = 5, label = 'Photos du produit' }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -40,7 +41,7 @@ export default function ImageUploader({ images, onChange, max = 5 }: Props) {
   return (
     <div className="flex flex-col gap-2">
       <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-        Photos du produit <span className="text-gray-400 font-normal">({images.length}/{max})</span>
+        {label} <span className="text-gray-400 font-normal">({images.length}/{max})</span>
       </label>
 
       <div className="flex flex-wrap gap-2">

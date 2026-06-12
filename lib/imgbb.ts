@@ -1,4 +1,6 @@
 const IMGBB_KEY = process.env.NEXT_PUBLIC_IMGBB_KEY || '';
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_SIZE_MB = 10;
 
 function compressImage(file: File, maxWidth = 1280, quality = 0.72): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -24,6 +26,8 @@ function compressImage(file: File, maxWidth = 1280, quality = 0.72): Promise<str
 }
 
 export async function uploadImage(file: File): Promise<string> {
+  if (!ALLOWED_TYPES.includes(file.type)) throw new Error('Format non supporté (JPG, PNG, WebP, GIF)');
+  if (file.size > MAX_SIZE_MB * 1024 * 1024) throw new Error(`Fichier trop lourd (max ${MAX_SIZE_MB} Mo)`);
   const dataUrl = await compressImage(file);
   const base64 = dataUrl.split(',')[1];
   const form = new FormData();

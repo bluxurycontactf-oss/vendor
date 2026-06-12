@@ -1,47 +1,65 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Zap, ArrowRight, Check } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Eye, EyeOff, Zap, ArrowRight, Check, Gift } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/translations';
 import toast from 'react-hot-toast';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
-export default function RegisterPage() {
+function RegisterContent() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [refCode, setRefCode] = useState('');
   const { register } = useAuth();
+  const { lang, t } = useLanguage();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setRefCode(ref.toUpperCase());
+      localStorage.setItem('pendingRefCode', ref.toUpperCase());
+    }
+  }, [searchParams]);
+
+  const A = translations[lang].auth;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreed) { toast.error('Veuillez accepter les conditions d\'utilisation'); return; }
-    if (password.length < 8) { toast.error('Mot de passe trop court (8 caractères minimum)'); return; }
+    if (!agreed) {
+
+      toast.error(lang === 'en' ? 'Please accept the terms of service' : lang === 'pt' ? 'Por favor aceite os termos de uso' : "Veuillez accepter les conditions d'utilisation");
+      return;
+    }
+    if (password.length < 8) {
+      toast.error(lang === 'en' ? 'Password too short (8 characters minimum)' : lang === 'pt' ? 'Senha muito curta (mínimo 8 caracteres)' : 'Mot de passe trop court (8 caractères minimum)');
+      return;
+    }
     setLoading(true);
     try {
       await register(email, password, name);
-      toast.success('Compte créé avec succès !');
-      router.push('/onboarding');
+      toast.success(lang === 'en' ? 'Account created!' : lang === 'pt' ? 'Conta criada!' : 'Compte créé avec succès !');
+      const plan = searchParams.get('plan');
+      router.push(plan === 'premium' || plan === 'business' ? `/onboarding?plan=${plan}` : '/onboarding');
     } catch (err: unknown) {
-      const msg = (err as { code?: string })?.code === 'auth/email-already-in-use'
-        ? 'Cet email est déjà utilisé'
-        : 'Erreur lors de la création du compte';
+      const code = (err as { code?: string })?.code;
+      const msg = code === 'auth/email-already-in-use'
+        ? (lang === 'en' ? 'This email is already in use' : lang === 'pt' ? 'Este email já está em uso' : 'Cet email est déjà utilisé')
+        : (lang === 'en' ? 'Error creating account' : lang === 'pt' ? 'Erro ao criar conta' : 'Erreur lors de la création du compte');
       toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
-
-  const perks = [
-    'Boutique en ligne en 2 minutes',
-    'Paiement Mobile Money intégré',
-    '10 produits gratuits pour démarrer',
-  ];
 
   return (
     <div className="min-h-screen flex">
@@ -52,10 +70,10 @@ export default function RegisterPage() {
           <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-8 backdrop-blur-sm">
             <Zap size={36} className="text-white" />
           </div>
-          <h2 className="text-3xl font-black text-white mb-4">Rejoignez Shoply Africa</h2>
-          <p className="text-blue-200 text-lg max-w-sm mb-10">Lancez votre boutique en ligne et commencez à vendre dès aujourd&apos;hui.</p>
+          <h2 className="text-3xl font-black text-white mb-4">{A.register_left_title}</h2>
+          <p className="text-blue-200 text-lg max-w-sm mb-10">{A.register_left_subtitle}</p>
           <div className="flex flex-col gap-4">
-            {perks.map(p => (
+            {A.perks.map(p => (
               <div key={p} className="flex items-center gap-3 bg-white/10 rounded-2xl px-5 py-3 backdrop-blur-sm text-left">
                 <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center flex-shrink-0">
                   <Check size={12} className="text-white" />
@@ -64,7 +82,7 @@ export default function RegisterPage() {
               </div>
             ))}
           </div>
-          <p className="mt-8 text-blue-200/60 text-sm">Déjà +10 000 vendeurs nous font confiance</p>
+          <p className="mt-8 text-blue-200/60 text-sm">{A.register_trust}</p>
         </div>
       </div>
 
@@ -78,31 +96,31 @@ export default function RegisterPage() {
             Shoply
           </Link>
 
-          <h1 className="text-3xl font-black text-[#0D1B3E] dark:text-white mb-2">Créer un compte</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-8">Gratuit, sans carte bancaire requise.</p>
+          <h1 className="text-3xl font-black text-[#0D1B3E] dark:text-white mb-2">{t('auth.register_title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">{t('auth.register_subtitle')}</p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <Input
-              label="Nom complet"
+              label={t('auth.name_label')}
               type="text"
-              placeholder="Votre prénom et nom"
+              placeholder={t('auth.name_placeholder')}
               value={name}
               onChange={e => setName(e.target.value)}
               required
             />
             <Input
-              label="Adresse email"
+              label={t('auth.email_label')}
               type="email"
-              placeholder="vous@exemple.com"
+              placeholder={t('auth.email_placeholder')}
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
             />
             <div>
               <Input
-                label="Mot de passe"
+                label={t('auth.password_label')}
                 type={showPwd ? 'text' : 'password'}
-                placeholder="8 caractères minimum"
+                placeholder={t('auth.password_placeholder')}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
@@ -121,6 +139,17 @@ export default function RegisterPage() {
               )}
             </div>
 
+            {/* Referral code badge */}
+            {refCode && (
+              <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl px-4 py-3">
+                <Gift size={16} className="text-green-600 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-green-700 dark:text-green-400">Code parrainage appliqué : <span className="font-black">{refCode}</span></p>
+                  <p className="text-xs text-green-600 dark:text-green-500">Vous contribuez à offrir 1 mois Premium à votre parrain 🎉</p>
+                </div>
+              </div>
+            )}
+
             <label className="flex items-start gap-3 cursor-pointer">
               <div
                 onClick={() => setAgreed(!agreed)}
@@ -129,24 +158,32 @@ export default function RegisterPage() {
                 {agreed && <Check size={12} className="text-white" />}
               </div>
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                J&apos;accepte les{' '}
-                <Link href="/terms" className="text-[#0A66FF] hover:underline">conditions d&apos;utilisation</Link>
-                {' '}et la{' '}
-                <Link href="/privacy" className="text-[#0A66FF] hover:underline">politique de confidentialité</Link>
+                {t('auth.register_terms')}{' '}
+                <Link href="/terms" className="text-[#0A66FF] hover:underline">{t('auth.register_terms_link')}</Link>
+                {' '}{t('auth.register_and')}{' '}
+                <Link href="/privacy" className="text-[#0A66FF] hover:underline">{t('auth.register_privacy_link')}</Link>
               </span>
             </label>
 
             <Button type="submit" loading={loading} iconRight={<ArrowRight size={18} />} fullWidth>
-              Créer mon compte gratuitement
+              {t('auth.register_btn')}
             </Button>
           </form>
 
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
-            Déjà un compte ?{' '}
-            <Link href="/auth/login" className="text-[#0A66FF] font-semibold hover:underline">Se connecter</Link>
+            {t('auth.register_has_account')}{' '}
+            <Link href="/auth/login" className="text-[#0A66FF] font-semibold hover:underline">{t('auth.register_login_link')}</Link>
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterContent />
+    </Suspense>
   );
 }

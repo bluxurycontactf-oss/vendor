@@ -1,11 +1,10 @@
+'use client';
 import { Store, Package, ShoppingCart, Users } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
-const stats = [
-  { icon: <Store size={24} />, value: '10 000+', label: 'Boutiques actives', color: 'blue' },
-  { icon: <Package size={24} />, value: '100 000+', label: 'Produits en vente', color: 'purple' },
-  { icon: <ShoppingCart size={24} />, value: '1 000 000+', label: 'Commandes traitées', color: 'green' },
-  { icon: <Users size={24} />, value: '500 000+', label: 'Clients satisfaits', color: 'orange' },
-];
+const icons = [<Store size={24} />, <Package size={24} />, <ShoppingCart size={24} />, <Users size={24} />];
+const values = ['10 000+', '100 000+', '1 000 000+', '500 000+'];
+const colorKeys = ['blue', 'purple', 'green', 'orange'];
 
 const colors: Record<string, string> = {
   blue: 'bg-blue-100 text-[#0A66FF] dark:bg-blue-900/30 dark:text-blue-400',
@@ -14,18 +13,22 @@ const colors: Record<string, string> = {
   orange: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400',
 };
 
+const labelKeys = ['stats.shops', 'stats.products', 'stats.orders', 'stats.clients'];
+
 export default function Stats() {
+  const { t } = useLanguage();
+
   return (
     <section className="py-20 bg-white dark:bg-gray-900 border-y border-gray-100 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {stats.map((s, i) => (
+          {labelKeys.map((key, i) => (
             <div key={i} className="text-center group">
-              <div className={`w-14 h-14 rounded-2xl ${colors[s.color]} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                {s.icon}
+              <div className={`w-14 h-14 rounded-2xl ${colors[colorKeys[i]]} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                {icons[i]}
               </div>
-              <div className="text-3xl font-black text-[#0D1B3E] dark:text-white mb-1">{s.value}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{s.label}</div>
+              <div className="text-3xl font-black text-[#0D1B3E] dark:text-white mb-1">{values[i]}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t(key)}</div>
             </div>
           ))}
         </div>

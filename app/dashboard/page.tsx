@@ -17,6 +17,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!shop) return;
+    setLoading(true);
     Promise.all([getOrders(shop.id!), getProducts(shop.id!)]).then(([o, p]) => {
       setOrders(o);
       setProducts(p);
@@ -34,35 +35,36 @@ export default function DashboardPage() {
   const monthRevenue = thisMonth.filter(o => o.status === 'delivered').reduce((s, o) => s + o.total, 0);
 
   const stats = [
-    { label: 'Revenus totaux', value: totalRevenue.toLocaleString('fr-FR') + ' FCFA', icon: <TrendingUp size={22} />, color: 'blue', trend: '+12%' },
-    { label: 'Ce mois-ci', value: monthRevenue.toLocaleString('fr-FR') + ' FCFA', icon: <ArrowUpRight size={22} />, color: 'green', trend: '+8%' },
-    { label: 'Commandes totales', value: orders.length.toString(), icon: <ShoppingCart size={22} />, color: 'purple', trend: `${pendingOrders} en attente` },
-    { label: 'Produits actifs', value: products.filter(p => p.isActive).length.toString(), icon: <Package size={22} />, color: 'orange', trend: `${products.length} au total` },
+    { label: 'Revenus totaux',    value: totalRevenue.toLocaleString('fr-FR') + ' FCFA', icon: <TrendingUp size={22} />,  color: 'blue',   trend: '+12%' },
+    { label: 'Ce mois-ci',        value: monthRevenue.toLocaleString('fr-FR') + ' FCFA', icon: <ArrowUpRight size={22} />, color: 'green',  trend: '+8%' },
+    { label: 'Commandes totales', value: orders.length.toString(),                        icon: <ShoppingCart size={22} />, color: 'purple', trend: `${pendingOrders} en attente` },
+    { label: 'Produits actifs',   value: products.filter(p => p.isActive).length.toString(), icon: <Package size={22} />, color: 'orange', trend: `${products.length} au total` },
   ];
 
   const colorMap: Record<string, string> = {
-    blue: 'bg-blue-100 text-[#0A66FF] dark:bg-blue-900/30 dark:text-blue-400',
-    green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+    blue:   'bg-blue-100 text-[#0A66FF] dark:bg-blue-900/30 dark:text-blue-400',
+    green:  'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
     purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
     orange: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400',
   };
 
   const statusLabel: Record<string, { label: string; variant: 'yellow' | 'blue' | 'green' | 'red' | 'gray' }> = {
-    pending: { label: 'En attente', variant: 'yellow' },
-    processing: { label: 'En cours', variant: 'blue' },
-    shipped: { label: 'Expédié', variant: 'blue' },
-    delivered: { label: 'Livré', variant: 'green' },
-    cancelled: { label: 'Annulé', variant: 'red' },
+    pending:    { label: 'En attente', variant: 'yellow' },
+    processing: { label: 'En cours',   variant: 'blue'   },
+    shipped:    { label: 'Expédié',    variant: 'blue'   },
+    delivered:  { label: 'Livré',      variant: 'green'  },
+    cancelled:  { label: 'Annulé',     variant: 'red'    },
   };
 
   return (
     <div className="p-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-black text-[#0D1B3E] dark:text-white mb-1">
           Bonjour, {user?.displayName?.split(' ')[0] || 'vendeur'} 👋
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">Voici un aperçu de votre boutique <strong>{shop?.name}</strong></p>
+        <p className="text-gray-500 dark:text-gray-400">
+          Voici un aperçu de votre boutique <strong>{shop?.name}</strong>
+        </p>
       </div>
 
       {/* Stats */}
@@ -119,7 +121,6 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Quick actions + top products */}
         <div className="flex flex-col gap-5">
           {/* Top products */}
           <Card padding="lg">
@@ -152,7 +153,7 @@ export default function DashboardPage() {
             )}
           </Card>
 
-          {/* Boutique link */}
+          {/* Share link */}
           {shop && (
             <Card padding="lg" className="bg-gradient-to-br from-[#0A66FF] to-[#3B82F6] text-white">
               <Users size={24} className="mb-3 opacity-80" />

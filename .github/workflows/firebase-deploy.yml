@@ -3,6 +3,11 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches: [master]
+  schedule:
+    # Rebuild + redeploy tous les jours à 3h UTC pour générer les pages SEO
+    # des produits/boutiques ajoutés depuis le dernier déploiement et
+    # mettre à jour le sitemap (référencement Google en continu).
+    - cron: '0 3 * * *'
 
 jobs:
   deploy:

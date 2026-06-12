@@ -2,11 +2,13 @@
 import Link from 'next/link';
 import { ArrowRight, Play, Star, ShoppingBag, TrendingUp, Users, Package } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Hero() {
+  const { t } = useLanguage();
+
   return (
     <section className="relative min-h-screen flex items-center pt-20 pb-16 overflow-hidden bg-gradient-to-br from-[#F0F7FF] via-white to-[#EAF3FF] dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      {/* BG decorations */}
       <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-blue-200/40 to-transparent rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-cyan-200/30 to-transparent rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 left-1/4 w-2 h-2 rounded-full bg-blue-400 animate-ping opacity-60" />
@@ -17,34 +19,43 @@ export default function Hero() {
 
           {/* Left: text */}
           <div className="text-center lg:text-left">
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-full px-4 py-1.5 mb-6 animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-xs font-semibold text-[#0A66FF] dark:text-blue-400">Plateforme #1 pour les commerçants africains</span>
+              <span className="text-xs font-semibold text-[#0A66FF] dark:text-blue-400">{t('hero.badge')}</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#0D1B3E] dark:text-white leading-[1.1] mb-6 animate-slide-up">
-              Créez votre boutique en ligne{' '}
-              <span className="bg-gradient-to-r from-[#0A66FF] to-[#3B82F6] bg-clip-text text-transparent">en quelques minutes</span>
+              {t('hero.title1')}{' '}
+              <span className="bg-gradient-to-r from-[#0A66FF] to-[#3B82F6] bg-clip-text text-transparent">{t('hero.title2')}</span>
             </h1>
 
             <p className="text-lg text-gray-500 dark:text-gray-400 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              Vendez vos produits sur internet et recevez vos paiements via <strong className="text-gray-700 dark:text-gray-300">Mobile Money</strong>. Sans compétences techniques, sans frais cachés.
+              {t('hero.subtitle_before')} <strong className="text-gray-700 dark:text-gray-300">{t('hero.mobile_money')}</strong>{t('hero.subtitle_after')}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <Link href="/auth/register">
-                <Button size="xl" iconRight={<ArrowRight size={20} />}>Créer ma boutique</Button>
+                <Button size="xl" iconRight={<ArrowRight size={20} />}>{t('hero.cta_primary')}</Button>
               </Link>
-              <button className="inline-flex items-center gap-3 px-6 py-4 rounded-[16px] bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold hover:border-[#0A66FF] transition-all group">
+              <Link href="/comment-ca-marche" className="inline-flex items-center gap-3 px-6 py-4 rounded-[16px] bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold hover:border-[#0A66FF] transition-all group">
                 <span className="w-10 h-10 rounded-full bg-gradient-to-r from-[#0A66FF] to-[#3B82F6] flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/30">
                   <Play size={16} className="text-white ml-0.5" />
                 </span>
-                Voir une démo
-              </button>
+                {t('hero.cta_how')}
+              </Link>
             </div>
 
-            {/* Trust row */}
+            <div className="flex justify-center lg:justify-start mb-10 animate-slide-up" style={{ animationDelay: '0.25s' }}>
+              <a
+                href="https://resigo.web.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#0A66FF] hover:underline"
+              >
+                <span className="text-base">🌐</span> {t('hero.cta_resigo')}
+              </a>
+            </div>
+
             <div className="flex items-center gap-4 justify-center lg:justify-start animate-slide-up" style={{ animationDelay: '0.3s' }}>
               <div className="flex -space-x-2">
                 {['🧑🏿‍💼','👩🏾‍💼','🧑🏾‍💼','👩🏿‍💼'].map((e,i) => (
@@ -56,7 +67,7 @@ export default function Hero() {
                   {[1,2,3,4,5].map(i => <Star key={i} size={12} className="text-yellow-400 fill-yellow-400" />)}
                   <span className="text-sm font-bold text-gray-900 dark:text-white ml-1">4.9</span>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">+10 000 vendeurs satisfaits</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('hero.trust')}</p>
               </div>
             </div>
           </div>
@@ -64,11 +75,9 @@ export default function Hero() {
           {/* Right: mockup */}
           <div className="relative animate-slide-up lg:animate-none" style={{ animationDelay: '0.4s' }}>
             <div className="relative mx-auto w-full max-w-lg">
-              {/* Main phone mockup */}
               <div className="relative mx-auto w-72 animate-float">
                 <div className="bg-[#0D1B3E] rounded-[40px] p-3 shadow-[0_40px_80px_rgba(10,102,255,0.3)]">
                   <div className="bg-white dark:bg-gray-900 rounded-[30px] overflow-hidden">
-                    {/* Store header */}
                     <div className="h-32 bg-gradient-to-r from-[#0A66FF] to-[#3B82F6] relative overflow-hidden">
                       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                       <div className="absolute bottom-4 left-4">
@@ -79,7 +88,6 @@ export default function Hero() {
                         <p className="text-blue-200 text-xs">45 produits · Cotonou</p>
                       </div>
                     </div>
-                    {/* Products grid */}
                     <div className="p-3 grid grid-cols-2 gap-2">
                       {[
                         { name: 'Robe élégante', price: '15 000', color: 'from-pink-200 to-rose-200', emoji: '👗' },
@@ -100,12 +108,11 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Floating cards */}
               <div className="absolute -left-8 top-12 bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-xl border border-gray-100 dark:border-gray-700 animate-float" style={{ animationDelay: '0.5s' }}>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-green-100 rounded-xl flex items-center justify-center"><TrendingUp size={14} className="text-green-600" /></div>
                   <div>
-                    <p className="text-xs text-gray-500">Revenus ce mois</p>
+                    <p className="text-xs text-gray-500">{t('hero.revenue_label')}</p>
                     <p className="text-sm font-bold text-gray-900 dark:text-white">485 000 F</p>
                   </div>
                 </div>
@@ -115,8 +122,8 @@ export default function Hero() {
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center"><Package size={14} className="text-[#0A66FF]" /></div>
                   <div>
-                    <p className="text-xs text-gray-500">Nouvelle commande</p>
-                    <p className="text-sm font-bold text-[#0A66FF]">+1 commande !</p>
+                    <p className="text-xs text-gray-500">{t('hero.order_label')}</p>
+                    <p className="text-sm font-bold text-[#0A66FF]">{t('hero.order_value')}</p>
                   </div>
                 </div>
               </div>
@@ -125,7 +132,7 @@ export default function Hero() {
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center"><Users size={14} className="text-purple-600" /></div>
                   <div>
-                    <p className="text-xs text-gray-500">Visiteurs aujourd&apos;hui</p>
+                    <p className="text-xs text-gray-500">{t('hero.visitors_label')}</p>
                     <p className="text-sm font-bold text-gray-900 dark:text-white">1 234</p>
                   </div>
                 </div>

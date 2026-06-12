@@ -1,13 +1,13 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, TrendingUp, Settings } from 'lucide-react';
 
 const nav = [
   { label: 'Accueil', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Produits', href: '/dashboard/products', icon: Package },
   { label: 'Commandes', href: '/dashboard/orders', icon: ShoppingCart },
-  { label: 'Clients', href: '/dashboard/customers', icon: Users },
+  { label: 'Stats', href: '/dashboard/stats', icon: TrendingUp },
   { label: 'Paramètres', href: '/dashboard/settings', icon: Settings },
 ];
 

@@ -5,39 +5,36 @@ import { useAuth } from '@/context/AuthContext';
 import Sidebar from '@/components/dashboard/Sidebar';
 import MobileNav from '@/components/dashboard/MobileNav';
 import { Loader2 } from 'lucide-react';
+import { useOrderNotifications } from '@/hooks/useOrderNotifications';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, shop, ready } = useAuth();
+  useOrderNotifications(shop);
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) router.push('/auth/login');
-  }, [user, loading, router]);
+    if (!ready) return;                            // wait — auth + shops still loading
+    if (!user)  { router.replace('/auth/login');  return; }
+    if (!shop)  { router.replace('/onboarding');  return; }
+  }, [ready, user, shop, router]);
 
-  if (loading) {
+  // Spinner while loading
+  if (!ready || !user || !shop) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 size={40} className="text-[#0A66FF] animate-spin" />
-          <p className="text-gray-500 dark:text-gray-400 font-medium">Chargement...</p>
-        </div>
+        <Loader2 size={40} className="text-[#0A66FF] animate-spin" />
       </div>
     );
   }
 
-  if (!user) return null;
-
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
-      {/* Sidebar desktop uniquement */}
       <div className="hidden lg:block">
         <Sidebar />
       </div>
-      {/* Contenu */}
       <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">
         {children}
       </main>
-      {/* Navigation mobile en bas */}
       <MobileNav />
     </div>
   );
