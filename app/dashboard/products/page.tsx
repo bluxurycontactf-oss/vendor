@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '@/lib/firestore';
 import { Product } from '@/types';
-import { Plus, Search, Edit2, Trash2, Package, ToggleLeft, ToggleRight, Star, Info } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Package, ToggleLeft, ToggleRight, Star, Info, Share2 } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Modal from '@/components/ui/Modal';
@@ -11,6 +11,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import ImageUploader from '@/components/ui/ImageUploader';
 import { calculateFedapayFee } from '@/lib/fees';
+import { shareProduct } from '@/lib/share';
 import toast from 'react-hot-toast';
 
 const EMPTY: Omit<Product, 'id' | 'shopId' | 'createdAt' | 'updatedAt'> = {
@@ -91,6 +92,11 @@ export default function ProductsPage() {
   const toggleActive = async (p: Product) => {
     await updateProduct(p.id!, { isActive: !p.isActive });
     load();
+  };
+
+  const handleShare = async (p: Product) => {
+    const result = await shareProduct({ id: p.id, name: p.name, price: p.price, shopName: shop?.name || '', image: p.images?.[0] });
+    if (result === 'copied') toast.success('Texte et lien copiés ! Collez-les dans TikTok, Instagram, Facebook...');
   };
 
   const FEATURED_LIMIT = 4;
@@ -191,6 +197,9 @@ export default function ProductsPage() {
                     Stock: {p.stock}
                   </Badge>
                   <div className="flex gap-2">
+                    <button onClick={() => handleShare(p)} title="Partager sur TikTok, Instagram, WhatsApp..." className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors">
+                      <Share2 size={13} />
+                    </button>
                     <button onClick={() => openEdit(p)} className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 hover:text-[#0A66FF] hover:bg-blue-50 transition-colors">
                       <Edit2 size={13} />
                     </button>
